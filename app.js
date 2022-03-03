@@ -1,16 +1,16 @@
 const express = require("express");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const ejs = require("ejs");
-const Post = require('./models/Post');
-
-
+const Post = require("./models/Post");
+const methodOverride = require("method-override");
+const postController = require('./controllers/postController');
+const pageController = require('./controllers/pageController');
 
 const app = express();
 
-
-mongoose.connect('mongodb://localhost/clenanblog-db', {
+mongoose.connect("mongodb://localhost/clenanblog-db", {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
 // TEMPLATE ENGINE
@@ -18,44 +18,30 @@ app.set("view engine", "ejs");
 
 // MIDDLEWARES
 app.use(express.static("public"));
-app.use(express.urlencoded({extended:true}));  // url'deki datayı okumamızı sağlar. 
+app.use(express.urlencoded({ extended: true })); // url'deki datayı okumamızı sağlar.
 app.use(express.json()); // url'deki datayı json formatına çevirir.
+app.use(
+  methodOverride("_method", {
+    methods: ["POST", "GET"],
+  })
+);
 
 // ROUTES
-app.get('/', async (req, res) => {
-  const posts = await Post.find({});
-  res.render('index', {
-    posts
-  });
-});
 
-// app.get("/index", (req, res) => {
-//   res.render("index");
-// });
+// Post Routes
+app.get("/", postController.getAllPosts);
+app.get("/posts/:id", postController.getPostById);
+app.post("/posts", postController.createPost);
+app.put('/posts/:id', postController.editPost);
+app.delete('/posts/:id', postController.deletePost);
 
-app.get('/about', (req, res) => {
-  res.render('about');
-});
+// Page Routes
+app.get("/about", pageController.getAboutPage);
+app.get("/add_post", pageController.getAddPostPage);
+app.get("/posts/edit/:id", pageController.getEditPage);
 
-app.get('/posts/:id', async (req,res) => {
-  const post = await Post.findById(req.params.id);
-  res.render('post', {
-    post
-  });
-});
+PORT = 3000;
 
-app.get('/add_post', (req, res) => {
-  res.render('add_post');
-});
-
-app.post("/posts", async (req,res) => {
-  // console.log(req.body);
-  await Post.create(req.body)
-  res.redirect('/');
-})
-
-port = 3000;
-
-app.listen(port, () => {
-  console.log(`Server started successfully. Port: ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port: ${PORT}`);
 });
