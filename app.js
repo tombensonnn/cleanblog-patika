@@ -1,17 +1,20 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const ejs = require("ejs");
-const Post = require("./models/Post");
 const methodOverride = require("method-override");
 const postController = require('./controllers/postController');
 const pageController = require('./controllers/pageController');
 
 const app = express();
 
-mongoose.connect("mongodb://localhost/clenanblog-db", {
+mongoose.connect("mongodb+srv://canuyumaz:sCzEdTyPLlIc135@cleanblog.kc1tz.mongodb.net/cleanblogdb?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+}).then(() => {
+  console.log('Database Connection Successful');
+}).catch(err => {
+  console.log(err);
+})
 
 // TEMPLATE ENGINE
 app.set("view engine", "ejs");
@@ -40,8 +43,8 @@ app.get("/about", pageController.getAboutPage);
 app.get("/add_post", pageController.getAddPostPage);
 app.get("/posts/edit/:id", pageController.getEditPage);
 
-PORT = 3000;
+const port = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port: ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port: ${port}`);
 });
